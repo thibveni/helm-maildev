@@ -4,25 +4,32 @@ image:
   repository: maildev/maildev
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 1.1.0
+  tag: 2.0.5
 
-outgoing_relay:
-  # MAILDEV_OUTGOING_HOST
-  host: smtp.gmail.com
-   # MAILDEV_OUTGOING_PORT
-  port: 465
-   # MAILDEV_OUTGOING_USER
-  user: 'XXX'
-   # MAILDEV_OUTGOING_PASS
-  pass: 'YYY'
-  # MAILDEV_OUTGOING_SECURE
-  secure: true
+verbose: false
 
-incoming:
-  # MAILDEV_INCOMING_USER
-  # user:
-  # MAILDEV_INCOMING_PASS
-  # pass:
+outgoingRelay:
+  # # MAILDEV_OUTGOING_HOST
+  # host: smtp.gmail.com
+  # # MAILDEV_OUTGOING_PORT
+  # port: 465
+  # # MAILDEV_OUTGOING_USER
+  # user: 'XXX'
+  # # MAILDEV_OUTGOING_PASS
+  # pass: 'YYY'
+  # secure: false
+  autoRelay:
+    enabled: false
+    # MAILDEV_AUTO_RELAY
+    # receiver: test
+    rules:
+      - allow: '*'
+
+incoming: {}
+  # # MAILDEV_INCOMING_USER
+  #  user:
+  # # MAILDEV_INCOMING_PASS
+  #  pass:
 
 ports:
   # MAILDEV_SMTP_PORT
@@ -30,22 +37,21 @@ ports:
   # MAILDEV_WEB_PORT
   web: 1080
 
-# MAILDEV_HTTPS
+## MAILDEV_HTTPS
 https:
   enabled: false
-  # MAILDEV_HTTPS_KEY
+  # # MAILDEV_HTTPS_KEY
   # key:
-  # MAILDEV_HTTPS_KEY
+  # # MAILDEV_HTTPS_KEY
   # cert:
 
 # Web interface
 web:
-  # MAILDEV_DISABLE_WEB
   disable: false
-  # MAILDEV_WEB_USER
-  user: admin
-  # MAILDEV_WEB_PASS
-  pass: admin
+  # # MAILDEV_WEB_USER
+  # user: admin
+  # # MAILDEV_WEB_PASS
+  # pass: admin
 
 imagePullSecrets: []
 nameOverride: ""
@@ -75,6 +81,44 @@ securityContext: {}
 
 service:
   type: ClusterIP
+
+ingress:
+  enabled: false
+  # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+  # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+  # ingressClassName: nginx
+  # Values can be templated
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  labels: {}
+  path: /
+
+  # pathType is only for k8s >= 1.18
+  pathType: Prefix
+
+  hosts:
+    - chart-example.local
+  ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
+  extraPaths: []
+  # - path: /*
+  #   backend:
+  #     serviceName: ssl-redirect
+  #     servicePort: use-annotation
+  ## Or for k8s > 1.19
+  # - path: /*
+  #   pathType: Prefix
+  #   backend:
+  #     service:
+  #       name: ssl-redirect
+  #       port:
+  #         name: service
+
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
